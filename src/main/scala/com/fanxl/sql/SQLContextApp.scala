@@ -5,6 +5,7 @@ import org.apache.spark.{SparkConf, SparkContext}
 
 /**
  * @description com.fanxl.sql.SQLContextApp
+ * SQLContext 最开始的使用
  * @author: fanxl 
  * @date: 2020/2/28 0028 13:50
  *

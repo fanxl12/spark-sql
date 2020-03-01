@@ -12,7 +12,7 @@ object SparkSessionApp {
     val spark = SparkSession.builder().appName("SparkSessionApp")
       .master("local[2]").getOrCreate()
 
-    val people = spark.read.json("file:///Users/rocky/data/people.json")
+    val people = spark.read.json("file:///E:\\vagrant\\hadoop001\\labs\\persion.json")
     people.show()
 
     spark.stop()

@@ -18,7 +18,7 @@ object SQLContextApp {
 
     //1)创建相应的Context
     val sparkConf = new SparkConf()
-//    sparkConf.setAppName("SQLContextApp").setMaster("local[2]")
+    sparkConf.setAppName("SQLContextApp").setMaster("local[2]")
 
     val sc = new SparkContext(sparkConf)
     val sqlContext = new SQLContext(sc)

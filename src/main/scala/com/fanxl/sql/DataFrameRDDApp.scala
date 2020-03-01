@@ -12,6 +12,11 @@ object DataFrameRDDApp {
 
     val spark = SparkSession.builder().appName("DataFrameRDDApp").master("local[2]").getOrCreate()
 
+    val sparkSession = SparkSession.builder().appName("SparkStatCleanJob")
+      .master("local[2]").getOrCreate()
+
+
+
     //inferReflection(spark)
 
     program(spark)

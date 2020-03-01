@@ -21,6 +21,7 @@ object SparkStatCleanJob {
     val accessDF = sparkSession.createDataFrame(accessRDD.map(x => AccessConvertUtil.parseLog(x)), AccessConvertUtil.struct)
 
 //    accessDF.printSchema()
+    // show(false) 显示的时候，字符串不截取
 //    accessDF.show(false)
 
     accessDF.coalesce(1).write.format("parquet")

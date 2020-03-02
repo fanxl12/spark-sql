@@ -16,7 +16,7 @@ object MySQLUtils {
    *  获取数据库连接
    * */
   def getConnection() = {
-    DriverManager.getConnection("jdbc:mysql://localhost:3306/fan_project?user=root&password=fxl421125")
+    DriverManager.getConnection("jdbc:mysql://localhost:3306/fan_project?user=root&password=fxl421125&useSSL=false")
   }
 
   /**
@@ -36,6 +36,10 @@ object MySQLUtils {
         connection.close()
       }
     }
+  }
+
+  def main(args: Array[String]) {
+    println(getConnection())
   }
 
 }

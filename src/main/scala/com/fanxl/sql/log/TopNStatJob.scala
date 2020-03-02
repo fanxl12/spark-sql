@@ -3,6 +3,8 @@ package com.fanxl.sql.log
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions._
 
+import scala.collection.mutable.ListBuffer
+
 /**
  * @description TopN的统计分析操作
  * @author: fanxl 
@@ -13,6 +15,7 @@ object TopNStatJob {
 
   def main(args: Array[String]): Unit = {
     val spark = SparkSession.builder().appName("TopNStatJob")
+      .config("spark.sql.sources.partitionColumnTypeInference.enabled","false")
       .master("local[2]").getOrCreate()
 
     val logDF = spark.read.load("file:///E:\\vagrant\\hadoop001\\labs\\log\\clean")
@@ -41,6 +44,25 @@ object TopNStatJob {
       "group by day, cmsId order by times desc")
 
     videoAccessTopNDF.show(false)
+
+    // 将统计的结果写入到MySql中
+    try {
+      videoAccessTopNDF.foreachPartition(partitionOfRecords => {
+        val list = new ListBuffer[DayVideoAccessStat]
+
+        partitionOfRecords.foreach(info => {
+          val day = info.getAs[String]("day")
+          val cmsId = info.getAs[Long]("cmsId")
+          val times = info.getAs[Long]("times")
+
+          list.append(DayVideoAccessStat(day, cmsId, times))
+        })
+
+        StatDAO.insertDayVideoAccessTopN(list)
+      })
+    }catch {
+      case e: Exception => e.printStackTrace()
+    }
   }
 
 }

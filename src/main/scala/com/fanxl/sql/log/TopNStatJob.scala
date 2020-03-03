@@ -44,6 +44,25 @@ object TopNStatJob {
       .groupBy("day", "cmsId")
       .agg(sum("traffic").as("traffics"))
       .orderBy($"traffics".desc)
+
+    // 将统计的结果写入到MySql中
+    try {
+      trafficAccessTopNDF.foreachPartition(partitionOfRecords => {
+        val list = new ListBuffer[DayVideoTrafficsStat]
+
+        partitionOfRecords.foreach(info => {
+          val day = info.getAs[String]("day")
+          val cmsId = info.getAs[Long]("cmsId")
+          val traffics = info.getAs[Long]("traffics")
+
+          list.append(DayVideoTrafficsStat(day, cmsId, traffics))
+        })
+
+        StatDAO.insertTrafficVideoCityAccessTopN(list)
+      })
+    }catch {
+      case e: Exception => e.printStackTrace()
+    }
   }
 
   /**

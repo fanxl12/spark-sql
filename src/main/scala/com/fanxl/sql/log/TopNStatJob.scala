@@ -21,13 +21,16 @@ object TopNStatJob {
 
     val logDF = spark.read.load("file:///E:\\vagrant\\hadoop001\\labs\\log\\clean")
 
-    //最受欢迎的TopN课程
-//    videoTopN(spark, logDF)
-    // 按照地市进行统计TopN课程
-//    cityTopN(spark, logDF)
+    val day = "20170511"
 
+    StatDAO.deleteData(day)
+
+    //最受欢迎的TopN课程
+    videoTopN(spark, logDF, day)
+    // 按照地市进行统计TopN课程
+    cityTopN(spark, logDF, day)
     //按照流量进行统计
-    videoTrafficsTopNStat(spark, logDF)
+    videoTrafficsTopNStat(spark, logDF, day)
 
     spark.stop()
   }
@@ -37,10 +40,10 @@ object TopNStatJob {
    * @param spark
    * @param logDF
    */
-  def videoTrafficsTopNStat(spark: SparkSession, logDF: DataFrame) = {
+  def videoTrafficsTopNStat(spark: SparkSession, logDF: DataFrame, day: String) = {
     //使用DataFrame方式进行统计
     import spark.implicits._
-    val trafficAccessTopNDF = logDF.filter($"day" === "20170511" && $"cmsType" === "video")
+    val trafficAccessTopNDF = logDF.filter($"day" === day && $"cmsType" === "video")
       .groupBy("day", "cmsId")
       .agg(sum("traffic").as("traffics"))
       .orderBy($"traffics".desc)
@@ -70,10 +73,10 @@ object TopNStatJob {
    * @param spark
    * @param logDF
    */
-  def cityTopN(spark: SparkSession, logDF: DataFrame) = {
+  def cityTopN(spark: SparkSession, logDF: DataFrame, day:String) = {
     //使用DataFrame方式进行统计
     import spark.implicits._
-    val cityAccessTopNDF = logDF.filter($"day" === "20170511" && $"cmsType" === "video")
+    val cityAccessTopNDF = logDF.filter($"day" === day && $"cmsType" === "video")
       .groupBy("day", "city", "cmsId")
       .agg(count("cmsId").as("times"))
 
@@ -115,7 +118,7 @@ object TopNStatJob {
    * @param spark
    * @param logDF
    */
-  def videoTopN(spark: SparkSession, logDF: DataFrame) = {
+  def videoTopN(spark: SparkSession, logDF: DataFrame, day: String) = {
     //使用DataFrame方式进行统计
 //    import spark.implicits._
 //    val videoAccessTopNDF = logDF.filter($"day" === "20170511" && $"cmsType" === "video")
@@ -125,7 +128,7 @@ object TopNStatJob {
     //使用SQL方式进行统计
     logDF.createOrReplaceTempView("access_logs")
     val videoAccessTopNDF = spark.sql("select day, cmsId, count(1) as times from access_logs " +
-      "where day = '20170511' and cmsType = 'video'" +
+      "where day = " + day + " and cmsType = 'video'" +
       "group by day, cmsId order by times desc")
 
     videoAccessTopNDF.show(false)
